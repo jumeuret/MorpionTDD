@@ -3,6 +3,7 @@ import modele.Joueur;
 import modele.Partie;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -33,49 +34,51 @@ public class PartieTest {
     @Test
     void testConstructeurPartie(){
         Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>;
-        Assertions.assertThrows(InvalidParameterException.class, new Partie(listeJoueurs, grille));
+        List<Joueur> listeJoueurs = new ArrayList<Joueur>();
+        Assertions.assertThrows(InvalidParameterException.class, (Executable) new Partie(listeJoueurs, grille), "Invalid list<Joueur> length");
         System.gc();
 
-        Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>;
-        listeJoueurs.Add(new Joueur());
-        Assertions.assertThrows(InvalidParameterException.class, new Partie(listeJoueurs, grille));
-        grille.delete();
-        listeJoueurs.delete();
+        Grille grille2 = new Grille();
+        List<Joueur> listeJoueurs2 = new ArrayList<Joueur>();
+        listeJoueurs2.add(new Joueur());
+        Assertions.assertThrows(InvalidParameterException.class, (Executable) new Partie(listeJoueurs2, grille2), "Invalid list<Joueur> length");
+        System.gc();
 
-        Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>;
+        Grille grille3 = new Grille();
+        List<Joueur> listeJoueurs3 = new ArrayList<Joueur>();
         for (int i = 0; i < 2; i ++){
-            listeJoueurs.Add(new Joueur());
+            listeJoueurs3.add(new Joueur());
         }
-        Assertions.assertThrows(InvalidParameterException.class, new Partie(listeJoueurs, grille));
-        grille.delete();
-        listeJoueurs.delete();
+        Assertions.assertThrows(InvalidParameterException.class, (Executable) new Partie(listeJoueurs3, grille3), "Invalid list<Joueur> length");
+        System.gc();
 
-        Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>;
+        Grille grille4 = new Grille();
+        List<Joueur> listeJoueurs4 = new ArrayList<Joueur>();
         for (int i = 0; i < Integer.MAX_VALUE; i ++){
-            listeJoueurs.Add(new Joueur());
+            listeJoueurs4.add(new Joueur());
         }
-        Assertions.assertThrows(InvalidParameterException.class, Partie partie = new Partie(listeJoueurs, grille));
-        grille.delete();
-        listeJoueurs.delete();
+        Assertions.assertThrows(InvalidParameterException.class, (Executable) new Partie(listeJoueurs4, grille4), "Invalid list<Joueur> length");
+        System.gc();
 
-        int random = (Math.random() * (Integer.MAX_VALUE))
-        Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>;
+        int random = (int) (Math.random() * (Integer.MAX_VALUE));
+        Grille grille5 = new Grille();
+        List<Joueur> listeJoueurs5 = new ArrayList<Joueur>();
         for (int i = 0; i < random; i ++){
-            listeJoueurs.Add(new Joueur());
+            listeJoueurs5.add(new Joueur());
         }
-        if (listeJoueurs.lenght() < 0){
-            Assertions.assertThrows(InvalidParameterException.class, Partie partie = new Partie(listeJoueurs, grille));
+        if (listeJoueurs5.size() < 2){
+            Assertions.assertThrows(InvalidParameterException.class, (Executable) new Partie(listeJoueurs5, grille5), "Invalid list<Joueur> length");
         }
         else{
-            Assertions.assertDoesNotThrow(InvalidParameterException.class, Partie partie = new Partie(listeJoueurs, grille));
+            Assertions.assertDoesNotThrow((Executable) new Partie(listeJoueurs5, grille5));
         }
-        grille.delete();
-        listeJoueurs.delete();
+        System.gc();
+    }
+
+    @Test
+    public void testAjouterPion(){
+
+
     }
 
 }
