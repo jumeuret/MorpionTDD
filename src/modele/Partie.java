@@ -29,4 +29,7 @@ public class Partie {
             joueurCourant = listeJoueurs.get(listeJoueurs.indexOf(joueurCourant) + 1);
         }
     }
+
+    public void ajouterPion(int index) {
+    }
 }

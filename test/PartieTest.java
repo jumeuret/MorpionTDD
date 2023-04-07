@@ -12,6 +12,7 @@ import java.util.List;
 public class PartieTest {
 
     /*
+        public Partie(List<Joueur> listeJoueurs, Grille grille)
     //(Grille) -> erreur
     //(Grille, Grille) -> erreur
     //(Liste(Joueur1, Joueur2), Liste(Joueur1, Joueur2) -> erreur
@@ -33,6 +34,8 @@ public class PartieTest {
 
     @Test
     void testConstructeurPartie(){
+        //TODO Borner le nombre de joueurs à maximum 10
+
         Grille grille = new Grille();
         List<Joueur> listeJoueurs = new ArrayList<Joueur>();
         Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs, grille), "Invalid list<Joueur> length");
@@ -62,15 +65,121 @@ public class PartieTest {
         }
     }
 
-    /*
+    /*----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    /*
+        public void ajouterPion(int case)
+    // Plateau de 3 X 3 cases
+    // Case 1,2 vides
+    (0) -> Erreur (occupée)
+    (1) -> Ok
+    (2) -> Ok
+    (3) -> Erreur (occupée)
+    (9) -> Erreur (pas existante)
+    (-1) -> Erreur (pas existante)
+
+    SI numCase < 0 ALORS Erreur
+    SINON SI numCase > grille.largeur ** 2 - 1 ALORS Erreur
+    SINON SI grille.cases[numCase].estLibre() == false ALORS Erreur
+    SINON Ok
      */
 
     @Test
-    public void testAjouterPion(){
+    public void testAjouterPionCasErreur1(){
 
-        Assertions.assertEquals(0,1);
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        grille.cases[0] = "O";
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> partie.ajouterPion(0), "Place already taken");
     }
+
+    @Test
+    public void testAjouterPionCasNominal1(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(1), "Place already taken");
+    }
+
+    @Test
+    public void testAjouterPionCasNominal2(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        grille.cases[3] = "O";
+        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(3), "Place already taken");
+    }
+
+    @Test
+    public void testAjouterPionCasErreur2(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        grille.cases[3] = "O";
+        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(3), "Place already taken");
+    }
+
+    @Test
+    public void testAjouterPionCasErreur3(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(9), "Index out of bounds (too large)");
+    }
+
+    @Test
+    public void testAjouterPionCasErreur4(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(-1), "Index out of bounds (negative)");
+    }
+
+    @Test
+    public void testAjouterPionGraine(){
+
+        List<Joueur> joueurs = new ArrayList<>();
+        joueurs.add(new Joueur(1));
+        joueurs.add(new Joueur(2));
+        Grille grille = new Grille();
+        Partie partie = new Partie(joueurs, grille);
+        grille.cases[1] = "O";
+        grille.cases[3] = "O";
+        int numCase = (-(grille.largeur + 5) + (int) (Math.random() * (grille.largeur + 5)));
+        if (numCase < 0){
+            Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(numCase), "Index out of bounds (negative)");
+        }
+        else if (numCase > ((grille.largeur * grille.largeur) - 1)){
+            Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(numCase), "Index out of bounds (too large)");
+        }
+        else if (grille.cases[numCase] != null){
+            Assertions.assertThrows(UnsupportedOperationException.class, () -> partie.ajouterPion(numCase), "Place already taken");
+        }
+        else{
+            Assertions.assertDoesNotThrow(() -> partie.ajouterPion(numCase));
+        }
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------------------------------------------*/
+
     /*
         // Joueurs = {Joueur1, Joueur2, Joueur3}
         // JoueurCourant = Joueur1
@@ -141,6 +250,9 @@ public class PartieTest {
             Assertions.assertEquals(idJoueurCourant, (partie.getJoueurCourant()).id);
         }
     }
+
+    /*----------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 
     /*
     // Joueurs = {Joueur1, Joueur2, Joueur3}
