@@ -7,11 +7,13 @@ import org.junit.jupiter.api.function.Executable;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PartieTest {
 
     /*
+    // Nb max joueurs = 10
         public Partie(List<Joueur> listeJoueurs, Grille grille)
     //(Grille) -> erreur
     //(Grille, Grille) -> erreur
@@ -34,31 +36,33 @@ public class PartieTest {
 
     @Test
     void testConstructeurPartie(){
-        //TODO Borner le nombre de joueurs à maximum 10
 
-        Grille grille = new Grille();
-        List<Joueur> listeJoueurs = new ArrayList<Joueur>();
-        Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs, grille), "Invalid list<Joueur> length");
+        Grille grille = new Grille(1);
+        List<Joueur> listeJoueurs = new LinkedList<>();
+        Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs, grille), "Invalid list<Joueur> length (too small)");
 
-        Grille grille2 = new Grille();
-        List<Joueur> listeJoueurs2 = new ArrayList<Joueur>();
+        Grille grille2 = new Grille(1);
+        List<Joueur> listeJoueurs2 = new LinkedList<>();
         listeJoueurs2.add(new Joueur(0));
-        Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs2, grille2), "Invalid list<Joueur> length");
+        Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs2, grille2), "Invalid list<Joueur> length (too small)");
 
-        Grille grille3 = new Grille();
-        List<Joueur> listeJoueurs3 = new ArrayList<Joueur>();
+        Grille grille3 = new Grille(1);
+        List<Joueur> listeJoueurs3 = new LinkedList<>();
         listeJoueurs3.add(new Joueur(0));
         listeJoueurs3.add(new Joueur(0));
         Assertions.assertDoesNotThrow(() -> new Partie(listeJoueurs3, grille3), "Valid list<Joueur> length");
 
-        int nbJoueurs = (int) (Math.random() * 8);
-        Grille grille5 = new Grille();
-        List<Joueur> listeJoueurs5 = new ArrayList<Joueur>();
+        int nbJoueurs = (int) (Math.random() * 15);
+        Grille grille5 = new Grille(1);
+        List<Joueur> listeJoueurs5 = new LinkedList<>();
         for (int i = 0; i < nbJoueurs; i ++){
             listeJoueurs5.add(new Joueur(0));
         }
         if (listeJoueurs5.size() < 2){
-            Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs5, grille5), "Invalid list<Joueur> length");
+            Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs5, grille5), "Invalid list<Joueur> length (too small)");
+        }
+        else if (listeJoueurs5.size() > 10){
+            Assertions.assertThrows(InvalidParameterException.class, () -> new Partie(listeJoueurs5, grille5), "Invalid list<Joueur> length (too large)");
         }
         else{
             Assertions.assertDoesNotThrow(() -> new Partie(listeJoueurs5, grille5), "Valid list<Joueur> length");
@@ -87,11 +91,12 @@ public class PartieTest {
     @Test
     public void testAjouterPionCasErreur1(){
 
-        List<Joueur> joueurs = new ArrayList<>();
+        List<Joueur> joueurs = new LinkedList<>();
         joueurs.add(new Joueur(1));
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        partie.indexJoueurCourant = 0;
         grille.cases[0] = "O";
         Assertions.assertThrows(UnsupportedOperationException.class, () -> partie.ajouterPion(0), "Place already taken");
     }
@@ -99,68 +104,109 @@ public class PartieTest {
     @Test
     public void testAjouterPionCasNominal1(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        joueur1.symbole = "X";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
-        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(1), "Place already taken");
+        partie.indexJoueurCourant = 0;
+        partie.ajouterPion(1);
+        Assertions.assertEquals(joueurs.get(partie.indexJoueurCourant).symbole, grille.cases[1]);
     }
 
     @Test
     public void testAjouterPionCasNominal2(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        joueur1.symbole = "X";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        partie.indexJoueurCourant = 0;
         grille.cases[3] = "O";
-        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(3), "Place already taken");
+        partie.ajouterPion(2);
+        Assertions.assertEquals(joueurs.get(partie.indexJoueurCourant).symbole, grille.cases[2]);
+    }
+
+    @Test
+    public void testAjouterPionCasNominal3(){
+
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        Joueur joueur2 = new Joueur(2);
+        joueurs.add(joueur1);
+        joueurs.add(joueur2);
+        joueur1.symbole = "X";
+        joueur2.symbole = "O";
+        Grille grille = new Grille(3);
+        Partie partie = new Partie(joueurs, grille);
+        grille.cases[3] = "X";
+        partie.indexJoueurCourant = 1;
+        partie.ajouterPion(2);
+        Assertions.assertEquals(joueurs.get(partie.indexJoueurCourant).symbole, grille.cases[2]);
     }
 
     @Test
     public void testAjouterPionCasErreur2(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        joueur1.symbole = "X";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        partie.indexJoueurCourant = 0;
         grille.cases[3] = "O";
-        Assertions.assertDoesNotThrow(() -> partie.ajouterPion(3), "Place already taken");
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> partie.ajouterPion(3), "Place already taken");
     }
 
     @Test
     public void testAjouterPionCasErreur3(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        joueur1.symbole = "X";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        partie.indexJoueurCourant = 0;
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(9), "Index out of bounds (too large)");
     }
 
     @Test
     public void testAjouterPionCasErreur4(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        joueur1.symbole = "X";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        partie.indexJoueurCourant = 0;
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> partie.ajouterPion(-1), "Index out of bounds (negative)");
     }
 
     @Test
     public void testAjouterPionGraine(){
 
-        List<Joueur> joueurs = new ArrayList<>();
-        joueurs.add(new Joueur(1));
-        joueurs.add(new Joueur(2));
-        Grille grille = new Grille();
+        List<Joueur> joueurs = new LinkedList<>();
+        Joueur joueur1 = new Joueur(1);
+        Joueur joueur2 = new Joueur(2);
+        joueurs.add(joueur1);
+        joueurs.add(joueur2);
+        joueur1.symbole = "X";
+        joueur2.symbole = "M";
+        Grille grille = new Grille(3);
         Partie partie = new Partie(joueurs, grille);
+        int joueurCourant = (int) (Math.random() * 2);
+        partie.indexJoueurCourant = joueurCourant;
         grille.cases[1] = "O";
         grille.cases[3] = "O";
         int numCase = (-(grille.largeur + 5) + (int) (Math.random() * (grille.largeur + 5)));
@@ -174,7 +220,8 @@ public class PartieTest {
             Assertions.assertThrows(UnsupportedOperationException.class, () -> partie.ajouterPion(numCase), "Place already taken");
         }
         else{
-            Assertions.assertDoesNotThrow(() -> partie.ajouterPion(numCase));
+            partie.ajouterPion(numCase);
+            Assertions.assertEquals(joueurs.get(partie.indexJoueurCourant).symbole, grille.cases[numCase]);
         }
     }
 
@@ -197,58 +244,36 @@ public class PartieTest {
     @Test
     public void testGetJoueurCourantCasNominaux() {
 
-        List<Joueur> joueurs = new ArrayList<>();
+        List<Joueur> joueurs = new LinkedList<>();
         Joueur joueur1 = new Joueur(1);
         joueurs.add(joueur1);
         Joueur joueur2 = new Joueur(2);
         joueurs.add(joueur2);
         Joueur joueur3 = new Joueur(3);
         joueurs.add(joueur3);
-        Grille grille = new Grille();
+        Grille grille = new Grille(1);
         Partie partie = new Partie(joueurs, grille);
-        partie.joueurCourant = joueur1;
-        Assertions.assertEquals(joueur1, partie.getJoueurCourant());
-        partie.joueurCourant = joueur2;
-        Assertions.assertEquals(joueur2, partie.getJoueurCourant());
-        partie.joueurCourant = joueur3;
-        Assertions.assertEquals(joueur3, partie.getJoueurCourant());
-    }
-    @Test
-    public void testGetJoueurCourantCasErreur() {
-
-        List<Joueur> joueurs = new ArrayList<>();
-        Joueur joueur1 = new Joueur(1);
-        joueurs.add(joueur1);
-        joueurs.add(new Joueur(2));
-        joueurs.add(new Joueur(3));
-        Grille grille = new Grille();
-        Partie partie = new Partie(joueurs, grille);
-        Assertions.assertThrows(NullPointerException.class, (Executable) partie.getJoueurCourant());
+        Assertions.assertEquals(0, partie.getJoueurCourant());
+        partie.indexJoueurCourant = joueurs.indexOf(joueur1);
+        Assertions.assertEquals(joueurs.indexOf(joueur1), partie.getJoueurCourant());
+        partie.indexJoueurCourant = joueurs.indexOf(joueur2);
+        Assertions.assertEquals(joueurs.indexOf(joueur2), partie.getJoueurCourant());
+        partie.indexJoueurCourant = joueurs.indexOf(joueur3);
+        Assertions.assertEquals(joueurs.indexOf(joueur3), partie.getJoueurCourant());
     }
     @Test
     public void testGetJoueurCourantGraine(){
 
-        int nbJoueurs = 2 + (int) (Math.random() * (8 - 2));
-        int idJoueurCourant = (int) (Math.random() * 10);
-        Grille grille = new Grille();
-        List<Joueur> joueurs = new ArrayList<Joueur>();
+        int nbJoueurs = 2 + (int) (Math.random() * (9 - 2));
+        int indexJoueurCourant = (int) (Math.random() * nbJoueurs );
+        Grille grille = new Grille(1);
+        List<Joueur> joueurs = new LinkedList<>();
         for (int i = 0; i < nbJoueurs; i ++){
             joueurs.add(new Joueur(i));
         }
         Partie partie = new Partie(joueurs, grille);
-        if (idJoueurCourant < nbJoueurs){
-            for (Joueur joueur: joueurs){
-                if (joueur.id == idJoueurCourant){
-                    partie.joueurCourant = joueur;
-                }
-            }
-        }
-        if (partie.joueurCourant == null){
-            Assertions.assertThrows(NullPointerException.class, (Executable) partie.getJoueurCourant());
-        }
-        else{
-            Assertions.assertEquals(idJoueurCourant, (partie.getJoueurCourant()).id);
-        }
+        partie.indexJoueurCourant = indexJoueurCourant;
+        Assertions.assertEquals(indexJoueurCourant, partie.getJoueurCourant());
     }
 
     /*----------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -271,94 +296,70 @@ public class PartieTest {
     @Test
     public void testChangerJoueurCourantCasNominal1(){
 
-        List<Joueur> joueurs = new ArrayList<>();
+        List<Joueur> joueurs = new LinkedList<>();
         Joueur joueur1 = new Joueur(1);
         Joueur joueur2 = new Joueur(2);
         joueurs.add(joueur1);
         joueurs.add(joueur2);
         joueurs.add(new Joueur(3));
-        Grille grille = new Grille();
+        Grille grille = new Grille(1);
         Partie partie = new Partie(joueurs, grille);
-        partie.joueurCourant = joueur1;
+        partie.indexJoueurCourant = joueurs.indexOf(joueur1);
         partie.changerJoueurCourant();
-        Assertions.assertEquals(joueur2, partie.joueurCourant);
+        Assertions.assertEquals(joueurs.indexOf(joueur2), partie.indexJoueurCourant);
     }
 
     @Test
     public void testChangerJoueurCourantCasNominal2(){
 
-        List<Joueur> joueurs = new ArrayList<>();
+        List<Joueur> joueurs = new LinkedList<>();
         joueurs.add(new Joueur(1));
         Joueur joueur2 = new Joueur(2);
         Joueur joueur3 = new Joueur(3);
         joueurs.add(joueur2);
         joueurs.add(joueur3);
-        Grille grille = new Grille();
+        Grille grille = new Grille(1);
         Partie partie = new Partie(joueurs, grille);
-        partie.joueurCourant = joueur2;
+        partie.indexJoueurCourant = joueurs.indexOf(joueur2);
         partie.changerJoueurCourant();
-        Assertions.assertEquals(joueur3, partie.joueurCourant);
+        Assertions.assertEquals(joueurs.indexOf(joueur3), partie.indexJoueurCourant);
     }
 
     @Test
     public void testChangerJoueurCourantCasNominal3(){
 
-        List<Joueur> joueurs = new ArrayList<>();
+        List<Joueur> joueurs = new LinkedList<>();
         Joueur joueur1 = new Joueur(1);
         joueurs.add(joueur1);
         joueurs.add(new Joueur(2));
         Joueur joueur3 = new Joueur(3);
         joueurs.add(joueur3);
-        Grille grille = new Grille();
+        Grille grille = new Grille(1);
         Partie partie = new Partie(joueurs, grille);
-        partie.joueurCourant = joueur3;
+        partie.indexJoueurCourant = joueurs.indexOf(joueur3);
         partie.changerJoueurCourant();
-        Assertions.assertEquals(joueur1, partie.joueurCourant);
-    }
-    @Test
-    public void testChangerJoueurCourantCasErreur(){
-
-        List<Joueur> joueurs = new ArrayList<>();
-        Joueur joueur1 = new Joueur(1);
-        joueurs.add(joueur1);
-        joueurs.add(new Joueur(2));
-        joueurs.add(new Joueur(3));
-        Grille grille = new Grille();
-        Partie partie = new Partie(joueurs, grille);
-        partie.changerJoueurCourant();
-        Assertions.assertEquals(joueur1, partie.joueurCourant);
+        Assertions.assertEquals(joueurs.indexOf(joueur1), partie.indexJoueurCourant);
     }
 
     @Test
     public void testChangerJoueurCourantGraine(){
 
-        int nbJoueurs = 2 + (int) (Math.random() * (8 - 2));
-        int idJoueurCourant = (int) (Math.random() * 10);
-        Grille grille = new Grille();
-        List<Joueur> joueurs = new ArrayList<Joueur>();
+        int nbJoueurs = 3 + (int) (Math.random() * (9 - 2));
+        int indexJoueurCourant = (int) (Math.random() * nbJoueurs);
+        Grille grille = new Grille(1);
+        List<Joueur> joueurs = new LinkedList<>();
         for (int i = 0; i < nbJoueurs; i ++){
             joueurs.add(new Joueur(i));
         }
         Partie partie = new Partie(joueurs, grille);
-        if (idJoueurCourant < nbJoueurs){
-            for (Joueur joueur: joueurs){
-                if (joueur.id == idJoueurCourant){
-                    partie.joueurCourant = joueur;
-                }
-            }
-        }
-        if (partie.joueurCourant == null){
+        partie.indexJoueurCourant = indexJoueurCourant;
+        if (partie.indexJoueurCourant == joueurs.size() - 1){
             partie.changerJoueurCourant();
-            Assertions.assertEquals(joueurs.get(0), partie.joueurCourant);
-        }
-        else if (joueurs.indexOf(partie.joueurCourant) == joueurs.size() - 1){
-            partie.changerJoueurCourant();
-            Assertions.assertEquals(joueurs.get(0), partie.joueurCourant);
+            Assertions.assertEquals(0, partie.indexJoueurCourant);
         }
         else{
             partie.changerJoueurCourant();
-            Assertions.assertEquals(joueurs.get(joueurs.indexOf(partie.joueurCourant)+ 1), partie.joueurCourant);
-
+            Assertions.assertEquals(indexJoueurCourant + 1, partie.indexJoueurCourant);
         }
     }
 }

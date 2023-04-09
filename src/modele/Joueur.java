@@ -1,9 +1,18 @@
 package modele;
 
+import java.security.InvalidParameterException;
+
 public class Joueur {
-    public Integer id;
+
+    public int id;
+    public String symbole;
 
     public Joueur(int id) {
-        this.id = id;
+        if (id < 0){
+            throw new InvalidParameterException("Id négatif");
+        }
+        else {
+            this.id = id;
+        }
     }
 }
